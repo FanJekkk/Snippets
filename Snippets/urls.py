@@ -19,13 +19,13 @@ from django.conf.urls.static import static
 from MainApp import views
 
 urlpatterns = [
-    path('', views.index_page, name="home"),
-    path('snippets/add', views.add_snippet_page, name="add_snippet"),
-    path('snippets/del/<int:id>', views.del_snippet_page, name="del_snippet"),
-    path('snippets/upd/<int:id>', views.upd_snippet_page, name="upd_snippet"),
-    path('snippets/list', views.snippets_page, name="snippets"),
-    path('snippets/list_all', views.snippets_all, name="snippets_all"),
-    path('snippets/list_hidden', views.snippets_hidden, name="snippets_hidden"),
-    path('snippet/<int:id>', views.snippet_detail, name="snippet_detail"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
+                  path('', views.index_page, name="home"),
+                  path('snippets/add', views.add_snippet_page, name="add_snippet"),
+                  path('snippets/del/<int:id>', views.del_snippet_page, name="del_snippet"),
+                  path('snippets/upd/<int:id>', views.upd_snippet_page, name="upd_snippet"),
+                  path('snippets/list', views.snippets_page, name="snippets"),
+                  path('snippets/list_all', views.snippets_all, name="snippets_all"),
+                  path('snippets/list_hidden', views.snippets_hidden, name="snippets_hidden"),
+                  path('snippet/<int:id>', views.snippet_detail, name="snippet_detail"),
+                  path('login/', views.login_page, name='login'),
+              ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

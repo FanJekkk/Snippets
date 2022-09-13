@@ -11,7 +11,7 @@
                     <th scope="col">Название</th>
                     <th scope="col">Автор</th>
                     <th scope="col">Дата создания</th>
-                    <th scope="col"></th>
+                    <th scope="col">Параметр</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -19,17 +19,20 @@
                 <tr>
                     <td scope="row">{{ snippet.id }}</td>
                     <td><a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a></td>
-                    <td>{{ snippet.user|default:"Нет автора"}}</td>
+                    <td>{{ snippet.user|default:"Аноним"}}</td>
                     <td>{{ snippet.creation_date | date:"d.m.Y H:i "}}</td>
-                    <td>
-                        <a href="{% url 'del_snippet' snippet.id %}"><button class="btn btn-warning">Удалить</button></a></td>
+                    <td>{{ snippet.parametr }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <div align="right">
-                <a href="{% url 'snippets_hidden' %}"><button class="btn btn-success">Отображать скрытые</button></a>
-                <a href="{% url 'snippets_all' %}"><button class="btn btn-success">Отображать все</button></a>
+                <a href="{% url 'snippets_hidden' %}">
+                    <button class="btn btn-success">Отображать скрытые</button>
+                </a>
+                <a href="{% url 'snippets_all' %}">
+                    <button class="btn btn-success">Отображать все</button>
+                </a>
                 <i style="color: gray;">Всего сниппетов: {{ snippets.count }}</i>
             </div>
         </div>

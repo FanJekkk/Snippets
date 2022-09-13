@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from MainApp.models import Snippet
-from MainApp.forms import SnippetForm, UserRegistrationForm
+from MainApp.forms import SnippetForm, UserRegistrationForm, CommentForm
 from django.contrib import auth
 
 
@@ -24,18 +24,18 @@ def add_snippet_page(request):
         return render(request, 'add_snippet.html', {'form': form})
 
 def snippets_page(request):
-    snippets = Snippet.objects.all().filter(hidden=0)
+    snippets = Snippet.objects.all().filter(parametr='Публичный')
     context = {'snippets': snippets}
     return render(request, 'pages/view_snippets.html', context)
 
 def snippets_hidden(request):
-    snippets = Snippet.objects.all().filter(hidden=1)
-    context = {'snippets': snippets}
+    snippets = Snippet.objects.all().filter(parametr='Частный')
+    context = {'snippets': snippets }
     return render(request, 'pages/view_snippets.html', context)
 
 def snippets_all(request):
     snippets = Snippet.objects.all()
-    context = {'snippets': snippets}
+    context = {'snippets': snippets }
     return render(request, 'pages/view_snippets.html', context)
 
 
@@ -46,9 +46,11 @@ def del_snippet_page(request, id):
 
 def snippet_detail(request, id):
     snippet = get_object_or_404(Snippet, id=id)
+    form = CommentForm()
     context = {
         'pagename': 'Подробнее о сниппете',
-        "snippet": snippet
+        "snippet": snippet,
+        "form": form
     }
     return render(request, 'pages/snippet_details.html', context)
 
@@ -61,8 +63,9 @@ def upd_snippet_page(request, id):
     lang = form_data["lang"]
     code = form_data["code"]
     creation_date = form_data['creation_date']
+    parametr = form_data['parametr']
     snippet = Snippet.objects.filter(id=id)
-    snippet.update(name=name,lang=lang,code=code,creation_date=creation_date)
+    snippet.update(name=name,lang=lang,code=code,creation_date=creation_date,parametr=parametr)
     return redirect("snippets")
 
 def login_page(request):
@@ -95,3 +98,31 @@ def register(request):
             return redirect("home")
         context = {'pagename': 'Регистрация пользователя', "form": form}
         return render(request, 'pages/registration.html', context)
+
+def my_snippets(request):
+    snippets = Snippet.objects.all().filter(user=request.user)
+    context = {'snippets': snippets}
+    return render(request, 'pages/view_snippets.html', context)
+
+def comment_add(request):
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        snippet_id = request.POST.get("snippet_id")
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.author = request.user
+            comment.snippet = Snippet.objects.get(id=snippet_id)
+            comment.save()
+
+        return redirect(f'/snippet/{snippet_id}')
+
+    raise Http404
+
+def search_snippet(request):
+    form_data = request.POST
+    search_id = form_data["search_id"]
+    print(search_id)
+    snippets = Snippet.objects.all().filter(pk=search_id)
+    context = {'snippets': snippets}
+    return render(request, 'pages/view_snippets.html', context)
+

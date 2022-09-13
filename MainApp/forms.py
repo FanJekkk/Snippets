@@ -1,19 +1,25 @@
 from django.forms import ModelForm, TextInput, Textarea, Select, CheckboxInput, CharField, PasswordInput, ValidationError
-from MainApp.models import Snippet
+from MainApp.models import Snippet, Comment
 from django.contrib.auth.models import User
 
+class CommentForm(ModelForm):
+   class Meta:
+       model = Comment
+       fields = ['comment']
+       widgets = {
+           'comment': TextInput(attrs={'class':'form-control form-control-md','placeholder': 'Комментарий'}),
+       }
 
 class SnippetForm(ModelForm):
    class Meta:
        model = Snippet
        # Описываем поля, которые будем заполнять в форме
-       fields = ['name', 'lang', 'code','hidden']
+       fields = ['name', 'lang', 'code','parametr']
        widgets = {
            'name': TextInput(attrs={'class':'form-control form-control-md','placeholder': 'Название'}),
            'lang': Select(attrs={'class': 'form-control form-control-md', 'placeholder': 'Язык программирования'}),
            'code': Textarea(attrs={'class': 'form-control form-control-md', 'placeholder': 'Код'}),
-           'hidden': CheckboxInput(attrs={'class': 'form-control form-control-md'})
-
+           'parametr': Select(attrs={'class': 'form-control form-control-md','placeholder': 'Параметр'})
        }
 
 class UserRegistrationForm(ModelForm):

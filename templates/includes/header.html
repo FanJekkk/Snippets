@@ -10,6 +10,7 @@
                     aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            {% if request.user.is_authenticated %}
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav mr-auto">
                     <li class="form-inline"><a class="btn btn-outline-secondary" href="{% url 'add_snippet' %}">Добавить
@@ -18,12 +19,18 @@
                         сниппеты</a></li>
                 </ul>
             </div>
-            {% if request.user.is_authenticated %}
+             <li class="form-inline"><a class="btn btn-outline-success mr-3" href="{% url 'my_snippets' %}">Мои сниппеты</a></li>
             <span class="text-white">
                 Welcome,{{ request.user.username}}
-                <a href="{% url 'logout' %}"><button class="btn btn-warning">Выйти</button></a>
+                <a href="{% url 'logout' %}"><button class="btn btn-warning ml-2">Выйти</button></a>
             </span>
             {%else%}
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="form-inline"><a class="btn btn-outline-info ml-3" href="{% url 'snippets' %}">Посмотреть
+                        сниппеты</a></li>
+                </ul>
+            </div>
             <div class="navbar-nav mr-right nav-item dropdown dropdown-menu-right">
                 <a class="btn btn-outline-primary my-2 my-sm-0 dropdown-toggle" href="#" id="navbarDropdown"
                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Авторизация</a>
@@ -43,7 +50,7 @@
                 </div>
             </div>
             <a href="{% url 'registration' %}">
-                <button class="btn btn-success">Регистрация</button>
+                <button class="btn btn-success ml-2">Регистрация</button>
             </a>
         </div>
         {%endif%}

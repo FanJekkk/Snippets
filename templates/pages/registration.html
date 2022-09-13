@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{%block main%}
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <h1>{{ pagename }}</h1>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <form action="" method="POST">
+            {% csrf_token%}
+            <table>
+            {{ form.as_p }}
+            </table>
+            <input type="submit" value="Создать пользователя"/>
+        </form>
+    </div>
+</div>
+{%endblock%}

@@ -9,6 +9,7 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Название</th>
+                    <th scope="col">Автор</th>
                     <th scope="col">Дата создания</th>
                     <th scope="col"></th>
                 </tr>
@@ -18,6 +19,7 @@
                 <tr>
                     <td scope="row">{{ snippet.id }}</td>
                     <td><a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a></td>
+                    <td>{{ snippet.user|default:"Нет автора"}}</td>
                     <td>{{ snippet.creation_date | date:"d.m.Y H:i "}}</td>
                     <td>
                         <a href="{% url 'del_snippet' snippet.id %}"><button class="btn btn-warning">Удалить</button></a></td>

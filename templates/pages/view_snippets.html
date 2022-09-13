@@ -17,15 +17,18 @@
                 {% for snippet in snippets %}
                 <tr>
                     <td scope="row">{{ snippet.id }}</td>
-                    <td><a href="{% url 'snippet' snippet.id }}">{{ snippet.name }}</a></td>
+                    <td><a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a></td>
                     <td>{{ snippet.creation_date | date:"d.m.Y H:i "}}</td>
-                    <td><a href="{% url 'del_snippet' snippet.id %}"><button class="btn btn-warning">Удалить</button></a></td>
+                    <td>
+                        <a href="{% url 'del_snippet' snippet.id %}"><button class="btn btn-warning">Удалить</button></a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <div align="right">
-                <i style="color: gray;">Всего сниппетов: 2</i>
+                <a href="{% url 'snippets_hidden' %}"><button class="btn btn-success">Отображать скрытые</button></a>
+                <a href="{% url 'snippets_all' %}"><button class="btn btn-success">Отображать все</button></a>
+                <i style="color: gray;">Всего сниппетов: {{ snippets.count }}</i>
             </div>
         </div>
     </div>

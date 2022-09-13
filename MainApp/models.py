@@ -1,9 +1,9 @@
 from django.db import models
 
 LANGS = [
-    ("py", "Python"),
-    ("js", "JavaScript"),
-    ("cpp",  "C++"),
+    ("Python", "Python"),
+    ("Javascript", "JavaScript"),
+    ("C++",  "C++"),
 ]
 
 class Snippet(models.Model):
@@ -11,3 +11,4 @@ class Snippet(models.Model):
     lang = models.CharField(max_length=30, choices=LANGS)
     code = models.TextField(max_length=5000)
     creation_date = models.DateTimeField(auto_now_add=True)
+    hidden = models.BooleanField()

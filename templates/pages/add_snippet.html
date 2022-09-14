@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block main %}
+
     <div class="container">
         <div class="row">
             <div class="col">
@@ -8,7 +9,7 @@
                 <hr>
             </div>
         </div>
-
+{% if request.user.is_authenticated %}
         <div class="row">
             <div class="col">
                 <form action="/snippets/add" method="post">
@@ -42,5 +43,8 @@
 
             </div>
         </div>
+        {% else %}
+        <div class="alert">Необходимо авторизоваться для добавления нового сниппета</div>
+        {% endif %}
     </div>
 {% endblock %}

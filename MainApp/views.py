@@ -3,12 +3,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm, UserRegistrationForm, CommentForm
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+from django.contrib import messages
+
 
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
     return render(request, 'pages/index.html', context)
 
+@login_required(login_url='/accounts/login')
 def add_snippet_page(request):
     if request.method == "GET":
         form = SnippetForm()
@@ -18,13 +26,20 @@ def add_snippet_page(request):
         form = SnippetForm(request.POST)
         if form.is_valid():
             snippet=form.save()
-            snippet.user = request.user
+            if request.user.is_anonymous:
+                snippet.user = None
+            else:
+                snippet.user = request.user
             snippet.save()
+            messages.success(request, 'Сниппет успешно добавлен!')
             return redirect("snippets")
-        return render(request, 'add_snippet.html', {'form': form})
 
 def snippets_page(request):
-    snippets = Snippet.objects.all().filter(parametr='Публичный')
+    if request.user.is_anonymous:
+        snippets = Snippet.objects.all().filter(parametr='Публичный')
+    else:
+        snippets = Snippet.objects.all().filter(Q(parametr='Публичный')| Q(user=request.user))
+    print(snippets)
     context = {'snippets': snippets}
     return render(request, 'pages/view_snippets.html', context)
 
@@ -46,6 +61,8 @@ def del_snippet_page(request, id):
 
 def snippet_detail(request, id):
     snippet = get_object_or_404(Snippet, id=id)
+    code = 'print "Hello World"'
+    print(highlight(code, PythonLexer(), HtmlFormatter()))
     form = CommentForm()
     context = {
         'pagename': 'Подробнее о сниппете',
@@ -68,7 +85,12 @@ def upd_snippet_page(request, id):
     snippet.update(name=name,lang=lang,code=code,creation_date=creation_date,parametr=parametr)
     return redirect("snippets")
 
+
 def login_page(request):
+    context={'page_name': 'Авторизация'}
+    return render(request,'accounts/login.html', context)
+
+def login(request):
    if request.method == 'POST':
        username = request.POST.get("username")
        password = request.POST.get("password")
@@ -90,14 +112,14 @@ def register(request):
     if request.method == "GET":
         form = UserRegistrationForm()
         context = {'pagename': 'Регистрация пользователя', "form": form}
-        return render(request, 'pages/registration.html', context)
+        return render(request, 'accounts/registration.html', context)
     if request.method == "POST":  # информацию от формы
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect("home")
         context = {'pagename': 'Регистрация пользователя', "form": form}
-        return render(request, 'pages/registration.html', context)
+        return render(request, 'accounts/registration.html', context)
 
 def my_snippets(request):
     snippets = Snippet.objects.all().filter(user=request.user)
@@ -125,4 +147,5 @@ def search_snippet(request):
     snippets = Snippet.objects.all().filter(pk=search_id)
     context = {'snippets': snippets}
     return render(request, 'pages/view_snippets.html', context)
+
 

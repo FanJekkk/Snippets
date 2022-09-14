@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
+{% load my_tags %}
 
 {% block main %}
 <div class="container">
+    {% if messages %}
+    <div class="messages alert alert-success">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">
+            {{ message|safe }}
+            <button type="button"   data-dismiss="alert" aria-label="Close" class="close">✖</button>
+        </li>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="row">
         <div class="col">
             <table class="table table-striped">
@@ -19,7 +30,7 @@
                 <tr>
                     <td scope="row">{{ snippet.id }}</td>
                     <td><a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a></td>
-                    <td>{{ snippet.user|default:"Аноним"}}</td>
+                    <td>{{ snippet.user|is_empty:"Аноним"}}</td>
                     <td>{{ snippet.creation_date | date:"d.m.Y H:i "}}</td>
                     <td>{{ snippet.parametr }}</td>
                 </tr>

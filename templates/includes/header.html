@@ -16,6 +16,7 @@
                         сниппет</a></li>
                     <li class="form-inline"><a class="btn btn-outline-info ml-3" href="{% url 'snippets' %}">Посмотреть
                         сниппеты</a></li>
+                    <li class="form-inline"><a class="btn btn-outline-warning ml-3" href="{% url 'rating' %}">Рейтинг</a></li>
                 </ul>
             </div>
             {% if request.user.is_authenticated %}

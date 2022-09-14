@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class CommentForm(ModelForm):
    class Meta:
        model = Comment
-       fields = ['comment']
+       fields = ['comment', "image"]
        widgets = {
            'comment': TextInput(attrs={'class':'form-control form-control-md','placeholder': 'Комментарий'}),
        }

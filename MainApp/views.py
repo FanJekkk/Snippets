@@ -1,14 +1,16 @@
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from MainApp.models import Snippet
+from MainApp.models import Snippet, Comment, User
 from MainApp.forms import SnippetForm, UserRegistrationForm, CommentForm
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+
 
 
 
@@ -38,19 +40,27 @@ def snippets_page(request):
     if request.user.is_anonymous:
         snippets = Snippet.objects.all().filter(parametr='Публичный')
     else:
-        snippets = Snippet.objects.all().filter(Q(parametr='Публичный')| Q(user=request.user))
-    print(snippets)
-    context = {'snippets': snippets}
+        snippets = Snippet.objects.all().filter(Q(parametr='Публичный') | Q(user=request.user))
+    if request.GET:
+        sort = request.GET.get('sort')
+        snippets = snippets.order_by(sort)
+    users = get_user_model().objects.all()
+    lang = Snippet.objects.values('lang').distinct()
+    context = {'snippets': snippets, 'users': users, 'lang': lang}
     return render(request, 'pages/view_snippets.html', context)
 
 def snippets_hidden(request):
     snippets = Snippet.objects.all().filter(parametr='Частный')
-    context = {'snippets': snippets }
+    users = get_user_model().objects.all()
+    lang = Snippet.objects.values('lang').distinct()
+    context = {'snippets': snippets, 'users': users, 'lang': lang}
     return render(request, 'pages/view_snippets.html', context)
 
 def snippets_all(request):
     snippets = Snippet.objects.all()
-    context = {'snippets': snippets }
+    users = get_user_model().objects.all()
+    lang = Snippet.objects.values('lang').distinct()
+    context = {'snippets': snippets, 'users': users,'lang': lang}
     return render(request, 'pages/view_snippets.html', context)
 
 
@@ -74,8 +84,6 @@ def snippet_detail(request, id):
 
 def upd_snippet_page(request, id):
     form_data = request.POST
-    print(form_data)
-    print(request.POST.get('flag_hide'))
     name = form_data["name"]
     lang = form_data["lang"]
     code = form_data["code"]
@@ -123,12 +131,17 @@ def register(request):
 
 def my_snippets(request):
     snippets = Snippet.objects.all().filter(user=request.user)
-    context = {'snippets': snippets}
+    if request.GET:
+        sort = request.GET.get('sort')
+        snippets = snippets.order_by(sort)
+    lang = Snippet.objects.values('lang').distinct()
+    users = get_user_model().objects.all()
+    context = {'snippets': snippets, 'users': users,'lang': lang}
     return render(request, 'pages/view_snippets.html', context)
 
 def comment_add(request):
     if request.method == "POST":
-        comment_form = CommentForm(request.POST)
+        comment_form = CommentForm(request.POST, request.FILES)
         snippet_id = request.POST.get("snippet_id")
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
@@ -143,9 +156,60 @@ def comment_add(request):
 def search_snippet(request):
     form_data = request.POST
     search_id = form_data["search_id"]
-    print(search_id)
-    snippets = Snippet.objects.all().filter(pk=search_id)
-    context = {'snippets': snippets}
+    if form_data["search_id"]:
+        lang = Snippet.objects.values('lang').distinct()
+        users = get_user_model().objects.all()
+        snippets = Snippet.objects.all().filter(pk=search_id)
+        if snippets.count() == 0:
+            messages.warning(request, 'Не найдено данного сниппета!')
+            context = {'pagename': 'PythonBin', 'error': 'Введите число'}
+            return render(request, 'pages/index.html', context)
+        else:
+            context = {'snippets': snippets, 'users': users, 'lang': lang}
+            return render(request, 'pages/view_snippets.html', context)
+
+
+    else:
+        messages.warning(request, 'Введите номер сниппета!')
+        context = {'pagename': 'PythonBin', 'error':'Введите число'}
+        return render(request, 'pages/index.html', context)
+
+def filter_by_user(request,id):
+    sort = request.GET.get('sort')
+    if request.user.is_anonymous:
+        snippets = Snippet.objects.all().filter(parametr='Публичный')
+    else:
+        snippets = Snippet.objects.all().filter(Q(parametr='Публичный') | Q(user=request.user))
+    snippets = snippets.filter(user=id)
+    if sort is not None:
+        snippets = snippets.order_by(sort)
+    lang = Snippet.objects.values('lang').distinct()
+    users = get_user_model().objects.all()
+    context = {'snippets': snippets, 'users': users,'lang': lang}
     return render(request, 'pages/view_snippets.html', context)
 
+def filter_by_lang(request,lang):
+    sort = request.GET.get('sort')
+    if request.user.is_anonymous:
+        snippets = Snippet.objects.all().filter(parametr='Публичный')
+    else:
+        snippets = Snippet.objects.all().filter(Q(parametr='Публичный') | Q(user=request.user))
+    snippets = snippets.filter(lang=lang)
+    if sort is not None:
+        snippets = snippets.order_by(sort)
+    lang = Snippet.objects.values('lang').distinct()
+    users = get_user_model().objects.all()
+    context = {'snippets': snippets, 'users': users,'lang': lang}
+    return render(request, 'pages/view_snippets.html', context)
 
+def rating_users(request):
+    rating = Snippet.objects.all()
+    snippets = Snippet.objects.all().count()
+    comments = Comment.objects.all().count()
+    rating = User.objects.raw("select au.id, au.username , count(distinct mas.id) as snippet , count(comment) as comment,"
+                              " (count(distinct mas.id) + count(comment)) as rating from auth_user au "
+                         " left join MainApp_snippet mas on mas.user_id = au.id"
+                         " left join MainApp_comment mac ON mac.snippet_id = mas.id "
+                         " group by au.id, au.username order by 3 desc;")
+    context = {'pagename':'Рейтинг пользователей', 'users': rating, 'comments_count': comments, 'snippets_count': snippets}
+    return render(request, 'pages/rating_users.html', context)

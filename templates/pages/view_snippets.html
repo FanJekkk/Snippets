@@ -8,7 +8,7 @@
         {% for message in messages %}
         <li class="{{ message.tags }}">
             {{ message|safe }}
-            <button type="button"   data-dismiss="alert" aria-label="Close" class="close">✖</button>
+            <button type="button" data-dismiss="alert" aria-label="Close" class="close">✖</button>
         </li>
         {% endfor %}
     </div>
@@ -18,18 +18,31 @@
             <table class="table table-striped">
                 <thead class="thead-dark">
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Название</th>
-                    <th scope="col">Автор</th>
-                    <th scope="col">Дата создания</th>
-                    <th scope="col">Параметр</th>
+                    <th scope="col">ID <a
+                            href="{% if request.GET.sort == 'id' %}?sort=-id{%else%}?sort=id{%endif%}">△▽</a>
+                    </th>
+                    <th scope="col">Название <a
+                            href="{% if request.GET.sort == 'name' %}?sort=-name{%else%}?sort=name{%endif%}">△▽</a>
+                    </th>
+                    <th scope="col">Автор <a
+                            href="{% if request.GET.sort == 'user' %}?sort=-user{%else%}?sort=user{%endif%}">△▽</a>
+                    </th>
+                    <th scope="col">Дата создания <a
+                            href="{% if request.GET.sort == 'creation_date' %}?sort=-creation_date{%else%}?sort=creation_date{%endif%}">△▽</a>
+                    </th>
+                    <th scope="col">Параметр <a
+                            href="{% if request.GET.sort == 'parametr' %}?sort=-parametr{%else%}?sort=parametr{%endif%}">△▽</a>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for snippet in snippets %}
                 <tr>
                     <td scope="row">{{ snippet.id }}</td>
-                    <td><a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a></td>
+                    <td>
+                        <a href="{% url 'snippet_detail' snippet.id %}">{{ snippet.name }}</a>
+                        {% if snippet.user == request.user %}<a href="{% url 'del_snippet' snippet.id %}"><i class="fa-solid fa-ban text-danger"></i></a>{% endif %}
+                    </td>
                     <td>{{ snippet.user|is_empty:"Аноним"}}</td>
                     <td>{{ snippet.creation_date | date:"d.m.Y H:i "}}</td>
                     <td>{{ snippet.parametr }}</td>
@@ -37,7 +50,31 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <div align="right">
+            <div class="float-left" align="left">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Пользователи
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for user in users %}
+                        <a class="dropdown-item" href="{% url 'filter_by_user' user.id %}">{{user}}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="float-left ml-2"><div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Язык
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for language in lang %}
+                        <a class="dropdown-item" href="{% url 'filter_by_lang' language.lang %}">{{ language.lang }}</a>
+                        {% endfor %}
+                    </div>
+                </div></div>
+            <div class="float-right" align="right">
                 <a href="{% url 'snippets_hidden' %}">
                     <button class="btn btn-success">Отображать скрытые</button>
                 </a>

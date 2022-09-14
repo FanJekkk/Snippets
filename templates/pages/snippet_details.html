@@ -82,7 +82,9 @@
             <div class="col">
                 <ul>
                     {% for text in snippet.comments.all %}
-                    <li><img width="40" height="40" src="{{ MEDIA_URL }}{{ text.image }}">{{ text.author }} - {{ text.comment }}</li>
+                    <li><img width="40" height="40" src="{{ MEDIA_URL }}{{ text.image }}">{{ text.author }} - {{
+                        text.comment }}
+                    </li>
 
                     {% endfor %}
                 </ul>
@@ -100,7 +102,8 @@
                         <table>
                             <tr>
                                 <div class="mt-2">
-                                    <input type="file" class="form-control"  name="image" accept="image/*" required id="id_image">
+                                    <input type="file" class="form-control" name="image" accept="image/*" required
+                                           id="id_image">
 
 
                                 </div>

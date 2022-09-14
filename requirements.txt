@@ -1,5 +1,5 @@
 dj-database-url==1.0.0
-Django==4.1.1
+Django==3.1
 django-extensions==3.0.5
 django-pygments==0.4
 ipython

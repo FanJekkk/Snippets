@@ -82,8 +82,8 @@
             <div class="col">
                 <ul>
                     {% for text in snippet.comments.all %}
-                    <li><img width="40" height="40" src="{{ MEDIA_URL }}{{ text.image }}">{{ text.author }} - {{
-                        text.comment }}
+                    <li><img width="40" height="40" src="{{ MEDIA_URL }}{{ text.image }}">
+                        {{ text.author }} - {{ text.comment }}
                     </li>
 
                     {% endfor %}

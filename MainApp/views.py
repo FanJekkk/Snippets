@@ -51,7 +51,7 @@ def snippets_page(request):
 
 
 def snippets_hidden(request):
-    snippets = Snippet.objects.all().filter(parametr='Частный')
+    snippets = Snippet.objects.all().filter(parametr='Частный').filter(user=request.user)
     users = get_user_model().objects.all()
     lang = Snippet.objects.values('lang').distinct()
     context = {'snippets': snippets, 'users': users, 'lang': lang}
@@ -59,7 +59,7 @@ def snippets_hidden(request):
 
 
 def snippets_all(request):
-    snippets = Snippet.objects.all()
+    snippets = Snippet.objects.all().filter(Q(parametr='Публичный') | Q(user=request.user))
     users = get_user_model().objects.all()
     lang = Snippet.objects.values('lang').distinct()
     context = {'snippets': snippets, 'users': users, 'lang': lang}

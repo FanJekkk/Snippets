@@ -218,11 +218,11 @@ def rating_users(request):
     snippets = Snippet.objects.all().count()
     comments = Comment.objects.all().count()
     rating = User.objects.raw(
-        "select au.id, au.username , count(distinct mas.id) as snippet , count(comment) as comment,"
-        " (count(distinct mas.id) + count(comment)) as rating from auth_user au "
-        " left join MainApp_snippet mas on mas.user_id = au.id"
-        " left join MainApp_comment mac ON mac.snippet_id = mas.id "
-        " group by au.id, au.username order by 3 desc;")
+        """select au.id, au.username , count(distinct mas.id) as snippet , count(comment) as comment,"""
+        """ (count(distinct mas.id) + count(comment)) as rating from auth_user au """
+        """ left join "MainApp_snippet" mas on mas.user_id = au.id"""
+        """ left join "MainApp_comment" mac ON mac.snippet_id = mas.id"""
+        """ group by au.id, au.username order by 3 desc;""")
     context = {'pagename': 'Рейтинг пользователей', 'users': rating, 'comments_count': comments,
                'snippets_count': snippets}
     return render(request, 'pages/rating_users.html', context)
